@@ -45,8 +45,6 @@ class BaseCAM:
                       eigen_smooth=False):
         weights = self.get_cam_weights(input_tensor, target_category, activations, grads)
         weighted_activations = weights[:, :, None, None] * activations
-        import pdb
-        pdb.set_trace()
 
         if eigen_smooth:
             cam = get_2d_projection(weighted_activations)
@@ -54,12 +52,14 @@ class BaseCAM:
             cam = weighted_activations.sum(axis=1)
         return cam
 
-    def forward(self, input_tensor, target_category=None, eigen_smooth=False):
+    def forward(self, input_tensor, target_category=None, eigen_smooth=False, embed=None):
+        # if embed is not None:
+        #     embed = embed.cuda()
 
-        if self.cuda:
-            input_tensor = input_tensor.cuda()
+        # if self.cuda:
+        #     input_tensor = input_tensor.cuda()
 
-        output = self.activations_and_grads(input_tensor)
+        output = self.activations_and_grads(input_tensor, embed)
 
         if type(target_category) is int:
             target_category = [target_category] * input_tensor.size(0)
@@ -122,10 +122,11 @@ class BaseCAM:
                  input_tensor,
                  target_category=None,
                  aug_smooth=False,
-                 eigen_smooth=False):
+                 eigen_smooth=False,
+                 embed=None):
         if aug_smooth is True:
             return self.forward_augmentation_smoothing(input_tensor,
                 target_category, eigen_smooth)
 
         return self.forward(input_tensor,
-            target_category, eigen_smooth)
+            target_category, eigen_smooth, embed)

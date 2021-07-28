@@ -24,7 +24,10 @@ class ActivationsAndGradients:
             grad = self.reshape_transform(grad)
         self.gradients = [grad.cpu().detach()] + self.gradients
 
-    def __call__(self, x):
+    def __call__(self, x, embed=None):
         self.gradients = []
-        self.activations = []        
-        return self.model(x)
+        self.activations = []      
+        if embed is not None:             
+            return self.model(x, embed)
+        else:
+            return self.model(x)
